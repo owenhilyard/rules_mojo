@@ -1,0 +1,7 @@
+load("//mojo:build_settings.bzl", "repeatable_string_flag")
+
+repeatable_string_flag(
+    name = "mojo_copt",
+    build_setting_default = [],
+    visibility = ["//visibility:public"],
+)
