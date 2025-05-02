@@ -7,3 +7,11 @@ MojoInfo = provider(
         "mojopkgs": "The mojopkg files required by the target",
     },
 )
+
+MojoToolchainInfo = provider(
+    doc = "Provider holding the tools for building Mojo targets.",
+    fields = {
+        "mojo": "The mojo compiler executable to build with",
+        "implicit_deps": "Implicit dependencies that every target should depend on, providing either CcInfo, or MojoInfo",
+    },
+)
