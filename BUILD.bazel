@@ -5,3 +5,7 @@ repeatable_string_flag(
     build_setting_default = [],
     visibility = ["//visibility:public"],
 )
+
+toolchain_type(
+    name = "toolchain_type",
+)
