@@ -8,4 +8,5 @@ repeatable_string_flag(
 
 toolchain_type(
     name = "toolchain_type",
+    visibility = ["//visibility:public"],
 )
