@@ -4,9 +4,11 @@ load("//mojo:providers.bzl", "MojoInfo", "MojoToolchainInfo")
 
 def _mojo_toolchain_impl(ctx):
     return [
-        MojoToolchainInfo(
-            mojo = ctx.attr.mojo,
-            implicit_deps = ctx.attr.implicit_deps,
+        platform_common.ToolchainInfo(
+            mojoinfo = MojoToolchainInfo(
+                mojo = ctx.executable.mojo,
+                implicit_deps = ctx.attr.implicit_deps,
+            ),
         ),
     ]
 
@@ -16,11 +18,14 @@ mojo_toolchain = rule(
         "mojo": attr.label(
             allow_single_file = True,
             mandatory = True,
+            executable = True,
+            cfg = "exec",
             doc = "The mojo compiler executable to build with.",
         ),
         "implicit_deps": attr.label_list(
             providers = [[CcInfo], [MojoInfo]],
             mandatory = True,
+            cfg = "target",
             doc = "Implicit dependencies that every target should depend on, providing either CcInfo, or MojoInfo.",
         ),
     },
