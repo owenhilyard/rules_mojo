@@ -1,9 +1,30 @@
-load("//mojo:mojo_library.bzl", "mojo_library")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("//mojo:mojo_binary.bzl", "mojo_binary")
+load("//mojo:mojo_test.bzl", "mojo_test")
 
-mojo_library(
-    name = "pkg",
+mojo_binary(
+    name = "hello_world",
     srcs = [
-        "__init__.mojo",
-        "pkg.mojo",
+        "hello_world.mojo",
+    ],
+    deps = [
+        "//tests/package",
+    ],
+)
+
+build_test(
+    name = "hello_world_build_test",
+    targets = [
+        ":hello_world",
+    ],
+)
+
+mojo_test(
+    name = "hello_world_test",
+    srcs = [
+        "hello_world_test.mojo",
+    ],
+    deps = [
+        "//tests/package",
     ],
 )
