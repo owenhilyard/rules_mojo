@@ -5,7 +5,7 @@ load("//mojo:providers.bzl", "MojoInfo", "MojoToolchainInfo")
 def _mojo_toolchain_impl(ctx):
     return [
         platform_common.ToolchainInfo(
-            mojoinfo = MojoToolchainInfo(
+            mojo_toolchain_info = MojoToolchainInfo(
                 copts = ctx.attr.copts,
                 mojo = ctx.executable.mojo,
                 implicit_deps = ctx.attr.implicit_deps,

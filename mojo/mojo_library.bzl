@@ -4,7 +4,7 @@ load("//mojo:providers.bzl", "MojoInfo")
 load("//mojo/private:utils.bzl", "MOJO_EXTENSIONS", "collect_mojoinfo")
 
 def _mojo_library_implementation(ctx):
-    mojo_toolchain = ctx.toolchains["//:toolchain_type"].mojoinfo
+    mojo_toolchain = ctx.toolchains["//:toolchain_type"].mojo_toolchain_info
 
     mojo_package = ctx.actions.declare_file(ctx.label.name + ".mojopkg")
     args = ctx.actions.args()
