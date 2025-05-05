@@ -28,6 +28,7 @@ def _mojo_library_implementation(ctx):
         tools = mojo_toolchain.all_tools,
         outputs = [mojo_package],
         arguments = [args, file_args],
+        mnemonic = "MojoPackage",
         progress_message = "%{label} building mojo package",
         env = {
             "MODULAR_CRASH_REPORTING_ENABLED": "false",

@@ -61,6 +61,7 @@ def _mojo_binary_test_implementation(ctx):
         inputs = depset(ctx.files.srcs, transitive = [transitive_mojopkgs]),
         outputs = [object_file],
         arguments = [args],
+        mnemonic = "MojoCompile",
         progress_message = "%{label} compiling mojo object",
         env = {
             "MODULAR_CRASH_REPORTING_ENABLED": "false",
