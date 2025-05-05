@@ -6,6 +6,7 @@ def _mojo_toolchain_impl(ctx):
     return [
         platform_common.ToolchainInfo(
             mojoinfo = MojoToolchainInfo(
+                copts = ctx.attr.copts,
                 mojo = ctx.executable.mojo,
                 implicit_deps = ctx.attr.implicit_deps,
             ),
@@ -15,6 +16,10 @@ def _mojo_toolchain_impl(ctx):
 mojo_toolchain = rule(
     implementation = _mojo_toolchain_impl,
     attrs = {
+        "copts": attr.string_list(
+            mandatory = False,
+            doc = "Additional compiler options to pass to the Mojo compiler.",
+        ),
         "mojo": attr.label(
             allow_single_file = True,
             mandatory = True,

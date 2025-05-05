@@ -11,6 +11,7 @@ MojoInfo = provider(
 MojoToolchainInfo = provider(
     doc = "Provider holding the tools for building Mojo targets.",
     fields = {
+        "copts": "Additional compiler options to pass to the Mojo compiler.",
         "mojo": "The mojo compiler executable to build with",
         "implicit_deps": "Implicit dependencies that every target should depend on, providing either CcInfo, or MojoInfo",
     },
