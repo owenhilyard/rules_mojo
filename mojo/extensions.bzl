@@ -7,6 +7,11 @@ _KNOWN_SHAS = {
         "linux_x86_64": "66e9c007585d6bbb39b2d89e8cb78f9de145c0f9e3b2ecd2f03cb9985ed1e25a",
         "macosx_13_0_arm64": "861083f7a706a13019516351a18c673f0099b2e28033207f8ef46296bdb66826",
     },
+    "25.4.0.dev2025050405": {
+        "linux_aarch64": "0e170ad4d0993ac00305b143e82dc07bf155e0f6f2bca7211049a7fcd5344780",
+        "linux_x86_64": "15e061dd15de31125f9de872f8e9c3d858058216045ab4bd17b7756ef9e30daf",
+        "macosx_13_0_arm64": "c141270bef510336557b9deb9a047ed8ea1f0c10bd6cc911a2b5d633d671d27c",
+    },
 }
 
 def _mojo_toolchain_impl(rctx):
@@ -105,7 +110,7 @@ _toolchain_tag = tag_class(
         # TODO: Add an attribute to pass through shas
         "version": attr.string(
             doc = "The version of the Mojo toolchain to download.",
-            default = "25.4.0.dev2025050206",
+            default = "25.4.0.dev2025050405",
         ),
     },
 )
