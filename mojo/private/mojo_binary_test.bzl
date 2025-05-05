@@ -48,6 +48,14 @@ def _mojo_binary_test_implementation(ctx):
     import_paths, transitive_mojopkgs = collect_mojoinfo(ctx.attr.deps + mojo_toolchain.implicit_deps)
     args.add_all(import_paths, before_each = "-I")
 
+    # NOTE: Argument order:
+    # 1. Basic functional arguments
+    # 2. Mojo toolchain arguments
+    # 3. --mojocopt arguments
+    # 4. copts = [] arguments
+    # 5. Attribute enabled arguments
+    args.add_all(mojo_toolchain.copts)
+
     # Ignore default mojo flags for exec built binaries
     if "-exec-" not in ctx.bin_dir.path:
         args.add_all(ctx.attr._mojo_copts[BuildSettingInfo].value)
