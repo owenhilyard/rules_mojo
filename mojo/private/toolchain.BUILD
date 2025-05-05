@@ -24,20 +24,19 @@ _INTERNAL_LIBRARIES = glob(
 ]
 
 mojo_import(
-    name = "stdlib",
-    mojopkg = "lib/mojo/stdlib.mojopkg",
+    name = "all_mojopkgs",
+    mojopkgs = glob(
+        ["lib/mojo/**/*.mojopkg"],
+        allow_empty = False,
+    ),
 )
-
-# TODO: Expose other vendored packages
 
 mojo_toolchain(
     name = "mojo_toolchain",
     implicit_deps = [
         paths.split_extension(library)[0]
         for library in _INTERNAL_LIBRARIES
-    ] + [
-        ":stdlib",
-    ],
+    ] + ([":all_mojopkgs"] if "{INCLUDE_MOJOPKGS}" else []),
     mojo = "bin/mojo",
     visibility = ["//visibility:public"],
 )

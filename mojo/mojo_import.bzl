@@ -4,23 +4,22 @@ load("//mojo:providers.bzl", "MojoInfo")
 load("//mojo/private:utils.bzl", "collect_mojoinfo")
 
 def _mojo_import_impl(ctx):
-    mojo_package = ctx.file.mojopkg
+    mojo_packages = ctx.files.mojopkgs
     import_paths, transitive_mojopkgs = collect_mojoinfo(ctx.attr.deps)
     return [
-        DefaultInfo(files = depset([mojo_package])),
+        DefaultInfo(files = depset(mojo_packages, transitive = [transitive_mojopkgs])),
         MojoInfo(
-            import_paths = depset([mojo_package.dirname], transitive = [import_paths]),
-            mojopkgs = depset([mojo_package], transitive = [transitive_mojopkgs]),
+            import_paths = depset([pkg.dirname for pkg in mojo_packages], transitive = [import_paths]),
+            mojopkgs = depset([pkg for pkg in mojo_packages], transitive = [transitive_mojopkgs]),
         ),
     ]
 
 mojo_import = rule(
     implementation = _mojo_import_impl,
     attrs = {
-        "mojopkg": attr.label(
-            allow_single_file = [".mojopkg"],
-            mandatory = True,
-            doc = "The mojopkg file to import.",
+        "mojopkgs": attr.label_list(
+            allow_files = [".mojopkg"],
+            doc = "The mojopkg files to import.",
         ),
         "deps": attr.label_list(
             providers = [MojoInfo],

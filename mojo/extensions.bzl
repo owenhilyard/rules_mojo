@@ -20,16 +20,30 @@ def _mojo_toolchain_impl(rctx):
         strip_prefix = "max-{}.data/platlib/max".format(rctx.attr.version),
     )
 
-    rctx.template("BUILD.bazel", rctx.attr._template)
+    rctx.template(
+        "BUILD.bazel",
+        rctx.attr._template,
+        substitutions = {
+            "{INCLUDE_MOJOPKGS}": "yes" if rctx.attr.include_mojopkgs else "",  # NOTE: Empty string for false to keep template BUILD file syntax lintable
+        },
+    )
 
 _mojo_toolchain_repository = repository_rule(
     implementation = _mojo_toolchain_impl,
     doc = "A Mojo toolchain repository rule.",
     attrs = {
-        "version": attr.string(doc = "The version of the Mojo toolchain to download."),
+        "version": attr.string(
+            doc = "The version of the Mojo toolchain to download.",
+            mandatory = True,
+        ),
         "platform": attr.string(
             doc = "The platform to download the Mojo toolchain for.",
             values = _PLATFORMS,
+            mandatory = True,
+        ),
+        "include_mojopkgs": attr.bool(
+            doc = "Whether to automatically add prebuilt mojopkgs to every mojo target.",
+            mandatory = True,
         ),
         "_template": attr.label(
             default = Label("//mojo/private:toolchain.BUILD"),
@@ -75,6 +89,7 @@ def _mojo_impl(mctx):
             name = name,
             version = module.tags.toolchain[0].version,
             platform = platform,
+            include_mojopkgs = True,
         )
 
     _mojo_toolchain_hub(
