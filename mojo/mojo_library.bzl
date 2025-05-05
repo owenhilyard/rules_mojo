@@ -25,6 +25,7 @@ def _mojo_library_implementation(ctx):
     ctx.actions.run(
         executable = mojo_toolchain.mojo,
         inputs = depset(ctx.files.srcs, transitive = [transitive_mojopkgs]),
+        tools = mojo_toolchain.all_tools,
         outputs = [mojo_package],
         arguments = [args, file_args],
         progress_message = "%{label} building mojo package",
