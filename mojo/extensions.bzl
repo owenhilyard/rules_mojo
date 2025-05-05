@@ -29,7 +29,7 @@ def _mojo_toolchain_impl(rctx):
         "BUILD.bazel",
         rctx.attr._template,
         substitutions = {
-            "{INCLUDE_MOJOPKGS}": "yes" if rctx.attr.include_mojopkgs else "",  # NOTE: Empty string for false to keep template BUILD file syntax lintable
+            "{INCLUDE_MOJOPKGS}": "yes" if rctx.attr.use_prebuilt_packages else "",  # NOTE: Empty string for false to keep template BUILD file syntax lintable
         },
     )
 
@@ -46,7 +46,7 @@ _mojo_toolchain_repository = repository_rule(
             values = _PLATFORMS,
             mandatory = True,
         ),
-        "include_mojopkgs": attr.bool(
+        "use_prebuilt_packages": attr.bool(
             doc = "Whether to automatically add prebuilt mojopkgs to every mojo target.",
             mandatory = True,
         ),
@@ -86,20 +86,31 @@ _mojo_toolchain_hub = repository_rule(
 )
 
 def _mojo_impl(mctx):
-    # TODO: Handle other modules
-    module = mctx.modules[0]
-    for platform in _PLATFORMS:
-        name = "mojo_toolchain_{}".format(platform)
-        _mojo_toolchain_repository(
-            name = name,
-            version = module.tags.toolchain[0].version,
-            platform = platform,
-            include_mojopkgs = True,
-        )
+    # TODO: This requires the root module always call mojo.toolchain(), we
+    # should improve this.
+    has_toolchains = False
+    for module in mctx.modules:
+        if not module.is_root:
+            continue
+
+        if len(module.tags.toolchain) > 1:
+            fail("mojo.toolchain() can only be called once per module.")
+
+        has_toolchains = True
+        tags = module.tags.toolchain[0]
+
+        for platform in _PLATFORMS:
+            name = "mojo_toolchain_{}".format(platform)
+            _mojo_toolchain_repository(
+                name = name,
+                version = tags.version,
+                platform = platform,
+                use_prebuilt_packages = tags.use_prebuilt_packages,
+            )
 
     _mojo_toolchain_hub(
         name = "mojo_toolchains",
-        platforms = _PLATFORMS,
+        platforms = _PLATFORMS if has_toolchains else [],
     )
 
     return mctx.extension_metadata(reproducible = True)
@@ -111,6 +122,10 @@ _toolchain_tag = tag_class(
         "version": attr.string(
             doc = "The version of the Mojo toolchain to download.",
             default = "25.4.0.dev2025050405",
+        ),
+        "use_prebuilt_packages": attr.bool(
+            doc = "Whether to automatically add prebuilt mojopkgs to every mojo target.",
+            default = True,
         ),
     },
 )
