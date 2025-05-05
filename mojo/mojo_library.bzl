@@ -35,6 +35,7 @@ def _mojo_library_implementation(ctx):
             "TEST_TMPDIR": ".",  # Make sure any cache files are written to somewhere bazel will cleanup
         },
         use_default_shell_env = True,
+        toolchain = "//:toolchain_type",
     )
 
     transitive_runfiles = []

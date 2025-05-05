@@ -71,6 +71,7 @@ def _mojo_binary_test_implementation(ctx):
             "TEST_TMPDIR": ".",
         },
         use_default_shell_env = True,
+        toolchain = "//:toolchain_type",
     )
 
     feature_configuration = cc_common.configure_features(
