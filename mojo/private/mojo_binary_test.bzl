@@ -114,6 +114,15 @@ def _mojo_binary_test_implementation(ctx):
     for target in data:
         transitive_runfiles.append(target[DefaultInfo].default_runfiles)
 
+    # Collect transitive shared libraries that must exist at runtime
+    for target in ctx.attr.deps + mojo_toolchain.implicit_deps:
+        if CcInfo not in target:
+            continue
+        for linker_input in target[CcInfo].linking_context.linker_inputs.to_list():
+            for library in linker_input.libraries:
+                if library.dynamic_library and not library.pic_static_library and not library.static_library:
+                    transitive_runfiles.append(ctx.runfiles(transitive_files = depset([library.dynamic_library])))
+
     runtime_env = dict(ctx.attr.env)
     for key, value in runtime_env.items():
         runtime_env[key] = ctx.expand_make_variables(

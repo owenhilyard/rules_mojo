@@ -1,0 +1,33 @@
+load("//mojo:mojo_test.bzl", "mojo_test")
+
+mojo_test(
+    name = "cc_test",
+    srcs = ["cc_test.mojo"],
+    deps = [
+        ":foo_import",
+    ],
+)
+
+cc_binary(
+    name = "foo",
+    srcs = ["foo.c"],
+    linkshared = True,
+    deps = [":bar"],
+)
+
+cc_binary(
+    name = "bar",
+    srcs = ["bar.c"],
+    linkshared = True,
+)
+
+cc_import(
+    name = "foo_import",
+    shared_library = ":foo",
+    deps = [":bar_import"],
+)
+
+cc_import(
+    name = "bar_import",
+    shared_library = ":bar",
+)
