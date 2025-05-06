@@ -1,16 +1,12 @@
 """MODULE.bazel extensions for Mojo toolchains."""
 
 _PLATFORMS = ["linux_aarch64", "linux_x86_64", "macosx_13_0_arm64"]
+_DEFAULT_VERSION = "25.4.0.dev2025050605"
 _KNOWN_SHAS = {
-    "25.4.0.dev2025050206": {
-        "linux_aarch64": "f89845a05ec8a8aade3506fe585d428d619224198c054fd54986c8ac1c83f44a",
-        "linux_x86_64": "66e9c007585d6bbb39b2d89e8cb78f9de145c0f9e3b2ecd2f03cb9985ed1e25a",
-        "macosx_13_0_arm64": "861083f7a706a13019516351a18c673f0099b2e28033207f8ef46296bdb66826",
-    },
-    "25.4.0.dev2025050405": {
-        "linux_aarch64": "0e170ad4d0993ac00305b143e82dc07bf155e0f6f2bca7211049a7fcd5344780",
-        "linux_x86_64": "15e061dd15de31125f9de872f8e9c3d858058216045ab4bd17b7756ef9e30daf",
-        "macosx_13_0_arm64": "c141270bef510336557b9deb9a047ed8ea1f0c10bd6cc911a2b5d633d671d27c",
+    "25.4.0.dev2025050605": {
+        "linux_aarch64": "77acfb83a6d9286c79791e6a443f5160b92dbd5aa69fc370b20f8ca76216100a",
+        "linux_x86_64": "35bb85e0101ce0d06eb6731fc18b29d74e15908fb3435465202eb923b80f5f6d",
+        "macosx_13_0_arm64": "98f32b413fa7755bbd612c394647c09dea92810856b3f823ab362f8e42ece110",
     },
 }
 
@@ -121,7 +117,7 @@ _toolchain_tag = tag_class(
         # TODO: Add an attribute to pass through shas
         "version": attr.string(
             doc = "The version of the Mojo toolchain to download.",
-            default = "25.4.0.dev2025050405",
+            default = _DEFAULT_VERSION,
         ),
         "use_prebuilt_packages": attr.bool(
             doc = "Whether to automatically add prebuilt mojopkgs to every mojo target.",
