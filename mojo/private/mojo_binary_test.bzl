@@ -1,5 +1,6 @@
 """mojo_binary and mojo_test rule definitions."""
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain", "use_cpp_toolchain")
 load("//mojo:providers.bzl", "MojoInfo")
@@ -29,6 +30,31 @@ _TOOLCHAINS = use_cpp_toolchain() + [
     "//:toolchain_type",
 ]
 
+def _find_main(name, srcs, main):
+    """Finds the main source file from the list of srcs and the main attribute."""
+    if main:
+        if main not in srcs:
+            fail("Main file not found in srcs. Please add '{}' to 'srcs'.".format(main.path))
+        return main
+
+    if len(srcs) == 1:
+        return srcs[0]
+
+    files_matching_name = []
+    main_files = []
+    for src in srcs:
+        filename_without_extension = paths.split_extension(src.basename)[0]
+        if filename_without_extension == name:
+            files_matching_name.append(src)
+        if filename_without_extension == "main":
+            main_files.append(src)
+    if len(files_matching_name) == 1:
+        return files_matching_name[0]
+    if len(main_files) == 1:
+        return main_files[0]
+
+    fail("Multiple Mojo files provided, but no main file specified. Please set 'main = \"foo.mojo\"' to disambiguate.")
+
 def _mojo_binary_test_implementation(ctx):
     mojo_toolchain = ctx.toolchains["//:toolchain_type"].mojo_toolchain_info
     cc_toolchain = find_cpp_toolchain(ctx)
@@ -40,10 +66,12 @@ def _mojo_binary_test_implementation(ctx):
     args.add("--emit", "object")
     args.add("-o", object_file.path)
 
-    if len(ctx.files.srcs) > 1:
-        fail("Currently only 1 source file is allowed for a mojo_binary")
+    main = _find_main(ctx.label.name, ctx.files.srcs, ctx.file.main)
+    args.add(main.path)
+    root_directory = main.dirname
     for file in ctx.files.srcs:
-        args.add(file.path)
+        if not file.dirname.startswith(root_directory):
+            args.add("-I", file.dirname)
 
     import_paths, transitive_mojopkgs = collect_mojoinfo(ctx.attr.deps + mojo_toolchain.implicit_deps)
     args.add_all(import_paths, before_each = "-I")
