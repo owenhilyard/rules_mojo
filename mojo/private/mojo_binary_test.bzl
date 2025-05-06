@@ -15,7 +15,7 @@ _ATTRS = {
     ),
     "copts": attr.string_list(),
     "deps": attr.label_list(
-        providers = [MojoInfo],
+        providers = [[CcInfo], [MojoInfo]],
     ),
     "data": attr.label_list(allow_files = True),
     "enable_assertions": attr.bool(default = True),
@@ -104,7 +104,7 @@ def _mojo_binary_test_implementation(ctx):
         actions = ctx.actions,
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
-        linking_contexts = [object_linking_context] + [dep[CcInfo].linking_context for dep in mojo_toolchain.implicit_deps if CcInfo in dep],
+        linking_contexts = [object_linking_context] + [dep[CcInfo].linking_context for dep in (ctx.attr.deps + mojo_toolchain.implicit_deps) if CcInfo in dep],
         name = ctx.label.name,
     )
 
