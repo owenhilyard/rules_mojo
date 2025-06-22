@@ -113,7 +113,6 @@ def _impl(rctx):
                 if constraint:
                     constraints.extend([
                         "@mojo_gpu_toolchains//:nvidia_gpu",
-                        "@mojo_gpu_toolchains//:has_gpu",
                         constraint,
                     ])
 
@@ -137,7 +136,6 @@ def _impl(rctx):
                     constraints.extend([
                         amd_constraint,
                         "@mojo_gpu_toolchains//:amd_gpu",
-                        "@mojo_gpu_toolchains//:has_gpu",
                     ])
 
                     if len(blob) > 1:
@@ -150,6 +148,9 @@ def _impl(rctx):
 
         else:
             constraints.extend(_get_amd_constraints_with_rocm_smi(rctx, rocm_smi, rctx.attr.gpu_mapping))
+
+    if len(constraints) > 0:
+        constraints.append("@mojo_gpu_toolchains//:has_gpu")
 
     rctx.file("WORKSPACE.bazel", "workspace(name = {})".format(rctx.attr.name))
     rctx.file("BUILD.bazel", """
