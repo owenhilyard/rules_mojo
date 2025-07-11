@@ -87,6 +87,32 @@ def _get_amd_constraints_with_rocm_smi(rctx, rocm_smi, gpu_mapping):
 
     return constraints
 
+def _get_apple_constraint(rctx, gpu_mapping):
+    result = rctx.execute(["/usr/sbin/system_profiler", "SPDisplaysDataType"])
+    if result.return_code != 0:
+        return None  # TODO: Should we fail instead?
+
+    _log_result(rctx, "/usr/sbin/system_profiler SPDisplaysDataType", result)
+
+    chipset = None
+    for line in result.stdout.splitlines():
+        if "Chipset Model" in line:
+            chipset = line
+            break
+
+    if not chipset:  # macOS VMs may not have GPUs attached
+        return None
+
+    for gpu_name, constraint in gpu_mapping.items():
+        if gpu_name in chipset:
+            if constraint:
+                return "@mojo_gpu_toolchains//:{}_gpu".format(constraint)
+            else:
+                return None
+
+    _fail(rctx, "Unrecognized system_profiler output, please add it to your gpu_mapping in the MODULE.bazel file: {}".format(result.stdout))
+    return None
+
 def _impl(rctx):
     constraints = []
 
@@ -151,6 +177,16 @@ def _impl(rctx):
         else:
             constraints.extend(_get_amd_constraints_with_rocm_smi(rctx, rocm_smi, rctx.attr.gpu_mapping))
 
+    elif rctx.os.name == "mac os x" and rctx.os.arch == "aarch64":
+        apple_constraint = _get_apple_constraint(rctx, rctx.attr.gpu_mapping)
+        if apple_constraint:
+            constraints.extend([
+                apple_constraint,
+                "@mojo_gpu_toolchains//:apple_gpu",
+            ])
+            if rctx.getenv("MOJO_ENABLE_HAS_GPU_FOR_APPLE"):
+                constraints.append("@mojo_gpu_toolchains//:has_gpu")
+
     rctx.file("WORKSPACE.bazel", "workspace(name = {})".format(rctx.attr.name))
     rctx.file("BUILD.bazel", """
 platform(
@@ -168,6 +204,7 @@ mojo_host_platform = repository_rule(
     implementation = _impl,
     configure = True,
     environ = [
+        "MOJO_ENABLE_HAS_GPU_FOR_APPLE",  # NOTE: Will likely be removed in the future
         "MOJO_IGNORE_UNKNOWN_GPUS",
         "MOJO_VERBOSE_GPU_DETECT",
     ],
